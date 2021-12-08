@@ -10,11 +10,11 @@ Created on Sun Nov 21 18:00:14 2021
 
 #Choose 'gaussian' or 'wurst'
 Choose_type=['wurst']
-START=[93] #in GHz
-STOP=[93.6]  #in GHz
+START=[93.4] #in GHz
+STOP=[94.25]  #in GHz
 
 #from oscillator*12+1.8
-RF=[93.4]
+RF=[94.37]
 
 #choose 'up' or 'down'
 CHIRP_DIRECTION=['up']
@@ -40,8 +40,8 @@ save_file='yes'
 import numpy as np
 import matplotlib.pyplot as plt
 
-x=np.arange(0,np.pi,0.0001)
-
+#x=np.arange(0,np.pi,0.0001)
+x=np.linspace(0,np.pi,100000)
 print(len(x),'points')
 
 

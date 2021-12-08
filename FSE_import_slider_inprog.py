@@ -6,9 +6,9 @@ Created on Sat Aug 21 17:44:33 2021
 """
 #write 'field' or 'freq'
 #interactive_plot='freq'
-interactive_plot='field'
+interactive_plot='freq'
 
-pick_field=3.39
+pick_field=3.385
 exp_freq=[94]
 
 #choose 'yes' or 'no'
@@ -154,7 +154,7 @@ data_mag_array=np.array(data_mag_array,dtype=object)
 derivative='off'
 
 
-if derivative=='off':
+if derivative=='on':
     from scipy.signal import savgol_filter
     fig = plt.figure(num=2,figsize=(3.25,2.25), dpi=300)
     for i in range(0,len(fields_array)):
@@ -168,43 +168,117 @@ if derivative=='off':
 ##############################################################################
 fig = plt.figure(num=3,figsize=(3.25,2.25), dpi=300)
 
-
-
+sliders=np.linspace(3.3,3.5,50)
+'''
 freq_vals=[]
 for i in range(0,len(fields_array)):
-    g_list=(exp_freq[i])/(13.94)/(fields_array[i])
+    freq_vals_in=[]
+    for j in range(0,len(sliders)):
+        g_list=(exp_freq[i])/(13.94)/(fields_array[i])
+        g_list=np.array(g_list)
+        freq_vals_in.append(sliders[j]*13.94*g_list)
+
+    freq_vals.append(freq_vals_in)
+'''
+
+freq_vals=[]
+
+for j in range(0,len(sliders)):
+    g_list=(exp_freq[0])/(13.94)/(fields_array[0])
     g_list=np.array(g_list)
-    freq_vals.append(pick_field*13.94*g_list)
+    freq_vals.append(sliders[j]*13.94*g_list)
 
 
-for i in range(0,len(fields_array)):
-    plt.plot(freq_vals[i],data_mag_array[i])
+
+
+    
+#freq_vals=freq_vals[0]
+#freq_vals=np.array(freq_vals)
+'''
+if interactive_plot=='field':
+    for i in range(0,len(fields_array)):
+        plt.plot(freq_vals[i],data_mag_array[i])
+elif interactive_plot=='freq':
+    '''
+plt.plot(freq_vals[0],data_mag_array[0])
 
 plt.xlabel('Frequency (GHz)')
 plt.ylabel('echo intensity')
-plt.title(' Freq dependence at %s T'% pick_field)
-plt.xlim(92,96)
+plt.title(' Freq dependence at %s T'% (np.round(sliders[0],3)))
+#plt.xlim(92,96)
 
-
+#freq_vals=freq_vals[0]
 if interactive_plot=='field':
     fig = go.Figure()
 elif interactive_plot=='freq':
-    fig = go.Figure(layout_title_text="field=%s"%(pick_field))
+    fig = go.Figure(layout_title_text="field=%s"% (np.round(sliders[0],3)))
 
 
 
-
-for i in range(0,len(data_mag_array)):
-    if interactive_plot=='field':
+if interactive_plot=='field':
+    for i in range(0,len(data_mag_array)):
         fig.add_trace(go.Scatter(x=fields_array[i], y=data_mag_array[i],
                     mode='lines',
                     name='xxx'))
         fig.update_xaxes(title='Field (T)')
-    elif interactive_plot=='freq':
-        fig.add_trace(go.Scatter(x=freq_vals[i], y=data_mag_array[i],
+    fig.update_yaxes(title='magnitude')
+
+    fig.show()
+
+elif interactive_plot=='freq':
+    for j in range(0,len(freq_vals)):
+        fig.add_trace(go.Scatter(visible=False,x=freq_vals[j], y=data_mag_array[0],
                     mode='lines',
                     name='xxx'))
-        fig.update_xaxes(title='Frequency (GHz)')
+    fig.update_xaxes(title='Frequency (GHz)')
+
+    fig.data[5].visible = True
+
+
+    
+    # Create and add slider
+    steps = []
+    for i in range(len(fig.data)):
+        step = dict(
+            method="update",
+            args=[{"visible": [False] * len(fig.data)},
+                  {"title":  str(np.round(sliders[i],3))+' T'}],  # layout attribute
+        )
+        step["args"][0]["visible"][i] = True  # Toggle i'th trace to "visible"
+        steps.append(step)
+    
+    sliders = [dict(
+        active=100,
+        currentvalue={"prefix": "Field: "},
+        pad={"t": 50},
+        steps=steps
+    )]
+    
+    fig.update_layout(
+        sliders=sliders
+    )
+    
+    fig.show()
+    
+        
+
+
+
+'''
+#**********************************************
+for step in np.arange(0, 5, 0.1):
+    fig.add_trace(
+        go.Scatter(
+            visible=False,
+            line=dict(color="#00CED1", width=6),
+            name="𝜈 = " + str(step),
+            x=np.arange(0, 10, 0.01),
+            y=np.sin(step * np.arange(0, 10, 0.01))))
+'''
+# Make 10th trace visible
+
+
+#**********************************************
 
 
 #print(freq_vals)
@@ -216,8 +290,10 @@ fig.add_trace(go.Scatter(x=field, y=data_mag,
                     mode='lines',
                     name='test'))
 '''
+
+'''
 fig.update_yaxes(title='magnitude')
 
 fig.show()
-
+'''
 

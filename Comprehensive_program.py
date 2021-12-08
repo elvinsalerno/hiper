@@ -1,3 +1,5 @@
+
+
 # -*- coding: utf-8 -*-
 """
 Created on Sat Aug 21 17:44:33 2021
@@ -6,41 +8,46 @@ Created on Sat Aug 21 17:44:33 2021
 """
 
 
-input_directory=r'C:\SpecManData\Elvin\MG_VIII_530_Gd3_1percent\Pop_transfer_experiments'
-input_filename='Rabi_MGVIII530_1pct_15dB_3.400T_93.92GHz'
+input_directory=r'C:\SpecManData\Elvin\MG_VIII_530_Gd3_1percent\Round_2\12082021'
+input_filename='popxfer_pumpchirp93.4to94.25_obs94.37GHz_15dB_3.400T_tau400ns'
 
 
 #write in terms of ns
-corrections=[[550,650]]
-integ_limit=[320,390]
+corrections=[[0,100]]
+integ_limit=[250,370]
 
 
 #choose "on' or 'off'
 plot_browser='offn'
-fourier_transform = 'on'
+fourier_transform = 'offn'
 
-x_axis_label='sat pulse frequency (GHz)'
-x_axis_label='Delay after first pulse (us)'
-#x_axis_label='sat pulse length (ns)'
+#x_axis_label='sat pulse frequency (GHz)'
+#x_axis_label='Delay after first pulse (us)'
+x_axis_label='sat pulse length (ns)'
 
 #choose 'yes' or 'no'
-normailze_data_out='yes'
+normalize_data_out='yes'
 
-
+#Choose 'yes' or 'no'
+print_data='no'
 
 
 
 ###############################################################################
 
 #put 0 and sometyhing really large uinless you want to change
-start_time=0
-end_time=1500
+#The range for the x-axis, given in terms of n traces to skip
+start_trace=2
+end_trace=400
 
-start_trace=3
-end_trace=200
+#skip these points for the x-axis, given in terms of x-axis
+#choose 'on' and give limits or 'off'
+skip_traces='onf'
+skip_trace_start=93.95
+skip_trace_end=94.05
 
 #value added to numbers on x-axis
-f_add= 0# 92.12
+f_add= 0
 
 ###############################################################################
 
@@ -50,8 +57,10 @@ f_add= 0# 92.12
 #choose 't1' or 't2' or 'no'
 fit_data='no'
 
-#choose 'ns' or 'us' or 'ms'
-timescale='us'
+
+#if x-scale doesnt change, leave as 'ns'
+#choose 'ns' or 'us' or 'ms' or "CPMG"
+timescale='ns'
 
 
 ###############################################################################
@@ -139,11 +148,12 @@ filename_in=input_directory+'\\'+input_filename+'.dat'
 
 
 
-#print(combined_name)
+print('file\n',filename_in)
 
 
 times = np.genfromtxt(filename_in,max_rows=1,delimiter='  ',dtype='<U19')
 raw_data = np.genfromtxt(filename_in,skip_header=1)
+
 
 '''
 #def plot_fcn(filename_in,lab):
@@ -169,19 +179,22 @@ times = np.genfromtxt(filename_in,max_rows=1,delimiter='  ',dtype='<U19')
 
 raw_data = np.genfromtxt(filename_in,skip_header=1)
 
+data=raw_data[:,1:]
+time_steps=raw_data[:,0]
 
 
+#This is trash
+#start_time=20
+#end_time=4000
+#data=raw_data[start_time:end_time,1:]
+#time_steps=raw_data[start_time:end_time,0]
 
-data=raw_data[start_time:end_time,1:]
-time_steps=raw_data[start_time:end_time,0]
 
 data=data.T
 time_steps=time_steps.T
 
 
 
-
-##########################################################
 corrections_indices=[]
 integ_indices=[]
 
@@ -215,6 +228,7 @@ import re
 times_2=[]
 for i in range(1,len(times)):
     times_2.append(float(re.findall('\d*\.?\d+',times[i])[0]))
+
 '''
 print(times_2)
 for i in range(0,len(times_2)):
@@ -231,8 +245,6 @@ for i in range(0,len(times_2)):
         times_2[i]=times_2[i]/1000
     else:
         pass
-
-
 
 
 fig = plt.figure(num=1,figsize=(3.25,2.25), dpi=300)
@@ -290,6 +302,11 @@ maxxx2=max(map(max, magn_list))
 
 magn_list=magn_list[start_trace:end_trace]
 
+
+times_3= times_2[::2]
+times_3=np.array(times_3)
+
+
 colors = cm.hot(np.linspace(0.,0.3, len(magn_list)))
 colors = cm.rainbow(np.linspace(0.,1, len(magn_list)))
 
@@ -304,11 +321,6 @@ plt.vlines(integ_limit[0],0,1,color='b')
 plt.vlines(integ_limit[1],0,1,color='b')
 
 
-#plt.ylim(0.5,1)
-
-
-
-#print(np.shape(magn_list))
 
 import scipy
 from scipy import integrate
@@ -335,14 +347,6 @@ for i in range(0,len(magn_list)):
 
 
 
-
-#print(np.array(integs)*100000000)
-
-times_3= times_2[::2]
-times_3=np.array(times_3)
-#print(times_2)
-#print(len(integs))
-
 savGol='off'
 from scipy.signal import savgol_filter
 if savGol=='on':
@@ -351,8 +355,8 @@ if savGol=='on':
 
 times_4=f_add+times_3
 
-DDC='yes'
-tau=300
+DDC='no'
+tau=250
 if DDC=='yes':
     times_4=times_4*2*tau
 else:
@@ -434,20 +438,22 @@ plt.ylabel('integrated signal')
 """
 #plt.xlim(93.4,94.5)
 
-
-print(*times_4[start_trace:end_trace],sep=',')
-print('\n')
-if normailze_data_out=='yes':
-    print(*NormalizeData(integs),sep=',')
+if print_data=='yes' or print_data=='on':
+    print('\nx-data')
+    print(*times_4[start_trace:end_trace],sep=',')
+    print('\ny-data')
+    if normalize_data_out=='yes':
+        print(*NormalizeData(integs),sep=',')
+    else:
+         print(*integs,sep=',')
 else:
-     print(*integs,sep=',')
+    pass
 
-
-
+'''
 print('im,re')
 print(*integs_im,sep=',')
 print(*integs_re,sep=',')
-
+'''
 
 
 '''
@@ -528,17 +534,10 @@ plt.title('Integrate Gaussian vs taupump')
 """
 
 
-#******************************************************************************
-#******************Fit t1 or t2************************************************
-#******************************************************************************
-
-
-
-fig = plt.figure(num=46,figsize=(3.25,2.25), dpi=300)
 
 if timescale=='us':
     times_4=times_4/1000
-    guess=[6,10,1]
+    guess=[6,10, 1]
 elif timescale=='ms':
     times_4=times_4/1000000
     guess=[6,0.001,1]
@@ -546,6 +545,61 @@ else:
     guess=[6,1000,1]
 
 
+############################DELETE INDEX RANGE##################################
+
+if skip_traces=='on':
+    fig = plt.figure(num=44,figsize=(3.25,2.25), dpi=300)
+    plt.plot(times_4[start_trace:end_trace],NormalizeData(integs),'b',label='data')
+    plt.title('skip traces plot')
+    plt.xlabel(x_axis_label)
+    plt.ylabel('integrated signal')
+    plt.vlines(skip_trace_start,min(NormalizeData(integs)),1,color='k')
+    plt.vlines(skip_trace_end,min(NormalizeData(integs)),1,color='k')
+    
+    specwavel1=min(times_4, key=lambda x:abs(x-skip_trace_start))
+    specwavel2=min(times_4, key=lambda x:abs(x-skip_trace_end))
+    index_del_trace_1, = np.where(times_4 == specwavel1)
+    index_del_trace_2, = np.where(times_4 == specwavel2)
+    
+    integs = np.delete(integs, slice(index_del_trace_1[0], index_del_trace_2[0]), axis=0)
+    times_4 = np.delete(times_4, slice(index_del_trace_1[0], index_del_trace_2[0]))
+else:
+    pass
+######################################################################
+
+
+############################FIT LORENTZIAN ELDOR##################################
+'''
+subtract_Lorentzian='on'
+
+if subtract_Lorentzian=='on':
+    def lorentzian( x, x0, a, gam ):
+        return 1-a * gam**2 / ( gam**2 + ( x - x0 )**2)
+    
+    fig = plt.figure(num=43,figsize=(3.25,2.25), dpi=300)
+    plt.plot(times_4[start_trace:end_trace],NormalizeData(integs),'b',label='data')
+    plt.title('Lorentzian plot')
+    plt.xlabel(x_axis_label)
+    plt.ylabel('integrated signal')
+    
+    from scipy.optimize import curve_fit
+    Lor_guess=[94,1,0.001]
+    pars, pcov = curve_fit(lorentzian,times_4[start_trace:end_trace],NormalizeData(integs), p0=Lor_guess,bounds=[[93,0,0],[95,np.inf,0.03]],maxfev=1000000)#,bounds=(0,np.inf),maxfev=3800)
+    #print(pars)
+    #pars_peaks=np.ndarray.tolist(pars_peaks)
+    #ax1.plot(peaks,corrfunc(peaks,*pars_peaks))#,'--',linewidth=0.5,color=colors[i,:])
+    
+    #print(pars)
+    
+    #pars=[94,1,2]
+    plt.plot(times_4[start_trace:end_trace],lorentzian(times_4[start_trace:end_trace],*pars),'r--',label=str(round(pars[1],2))+' '+timescale )
+    
+    integs=integs+-30*lorentzian(times_4[start_trace:end_trace],*pars)
+
+'''
+
+######################################################################
+fig = plt.figure(num=46,figsize=(3.25,2.25), dpi=300)
 
 
 plt.plot(times_4[start_trace:end_trace],NormalizeData(integs),'b',label='data')
@@ -561,6 +615,10 @@ print('\n')
 print(*NormalizeData(integs),sep=',')
 '''
 
+#******************************************************************************
+#******************Fit t1 or t2************************************************
+#******************************************************************************
+
 
 
 
@@ -568,8 +626,8 @@ if fit_data=='t2':
     def expon(t,N0,k,c):#,c,d):
         return N0*np.exp(-t/k)+c
 elif fit_data=='t1':
-    def expon(t,N0,k,c):#,c,d):
-        return -N0*np.exp(-t/k)+c
+    def expon(t,N0,k, c):#,c,d):
+        return -N0*np.exp(-t/k) + c
     
     
     
@@ -578,17 +636,17 @@ if fit_data=='t1' or fit_data=='t2':
     from scipy.optimize import curve_fit
     
     pars, pcov = curve_fit(expon,times_4[start_trace:end_trace],NormalizeData(integs), p0=guess,maxfev=1000000)#,bounds=(0,np.inf),maxfev=3800)
-    print(pars)
+    #print(pars)
     #pars_peaks=np.ndarray.tolist(pars_peaks)
     #ax1.plot(peaks,corrfunc(peaks,*pars_peaks))#,'--',linewidth=0.5,color=colors[i,:])
     
     #print(pars)
     
-    plt.plot(times_4[start_trace:end_trace],expon(times_4[start_trace:end_trace],*pars),'r--',label=str(round(pars[1],2))+' '+timescale)
+    plt.plot(times_4[start_trace:end_trace],expon(times_4[start_trace:end_trace],*pars),'r--',label=str(round(pars[1],2))+' '+timescale )
     #corrected_wavelengths=corrfunc(Crystal_wavelengths,*pars_peaks)
     #print(type(corrected_wavelengths))
     
-    print(' N_0 =',pars[0],'\n','rate1 =',pars[1]**-1,'ns^-1' ,'\n' , 'lifetime =',pars[1],'\n','C =',pars[2])
+    print('\n','N_0 =',pars[0],'\n','rate1 =',pars[1]**-1,'ns^-1' ,'\n' , 'lifetime =',pars[1],'\n','C =',pars[2])
     
     plt.legend()
     plt.xlabel('time ('+timescale+')')
@@ -646,3 +704,5 @@ if fourier_transform == 'on':
     plt.plot(freq, signal.real)
     plt.xlim(0,0.2)
    # plt.ylim(0,15)
+
+
