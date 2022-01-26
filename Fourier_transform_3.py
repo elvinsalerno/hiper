@@ -20,13 +20,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-file_directory=r"C:\SpecManData\Elvin\MG_VIII_530_Gd3_1percent\try_Fourier_Detected"
-filename_in="chirp_93.5to94.5_4dB_5K_5"
+file_directory=r"C:\SpecManData\Elvin\MG_VIII_530_Gd3_1percent\Round_2\12082021\chirped_exc_and_det"
+filename_in="Fourier_det_obs93.4to94.5GHz_4dB_3.390T_center94Ghz"
 
 skip_n_points=0
 #n2=2500
 
-Col=6
+Col=10
 
 
 
@@ -40,19 +40,36 @@ font = {'family' : 'Verdana',
         'size'   : 12}
 plt.rc('font', **font)
 fig = plt.figure(num=1,figsize=(3.25,2.25), dpi=300)
+fig = plt.figure(num=2,figsize=(3.25,2.25), dpi=300)
 
 raw_data = np.genfromtxt(filename_comby,skip_header=1)#,delimiter=',')
+
+
+
+
 
 times=raw_data[:,0]
 data_im=raw_data[:,2*Col]
 data_re=raw_data[:,2*Col-1]
 
+
+
+
+plt.figure(1)
+
+plt.plot(times,data_im)
+plt.plot(times,data_re)
+
+
+
+
+
 #data = [data_im[i]+ 1j* data_re[i] for i in range(len(data_im)) ]
-data = [data_im[i]+ 1j* data_re[i] for i in range(len(data_im)) ]
-print(data)
+data = [data_re[i]+ 1j* data_im[i] for i in range(len(data_im)) ]
+#print(data)
 #data_mag=(np.sqrt((np.square(data_im))+(np.square(data_re))))
 
-T=(times[1]-times[0])
+T=times[1]-times[0]
 
 
 from scipy.fft import fft, fftfreq
@@ -63,7 +80,7 @@ x = times
 y =data-np.mean(data)
 yf = fft(y)
 
-print(yf)
+#print(yf)
 
 
 from scipy.signal import blackman
@@ -80,7 +97,7 @@ yf = np.fft.fftshift(yf)
 xf = np.fft.fftshift(xf)
 
 
-yf=(np.imag(yf))
+#yf=(np.imag(yf))
 ###########################
 
 
@@ -92,20 +109,25 @@ yf=(np.imag(yf))
 
 yf=np.abs(yf)
 
-savGol='off'
+savGol='on'
 from scipy.signal import savgol_filter
 if savGol=='on':
-    yf=savgol_filter(yf, 11, 2)
+    yf=savgol_filter(yf, 15, 2)
 
 
 
+xf=xf/1e9
+xf=xf#+94
 
 
+plt.figure(2)
+
+plt.xlim(-0.3,0.3)
 
 #print(xf)
-import matplotlib.pyplot as plt
-plt.plot(xf/1e9, yf, '-b')
-#plt.xlim(93.79,94.0)
-plt.xlim(-.2,.2)
+
+plt.plot(xf, yf, '-b')
+#plt.xlim(70,110)
+#plt.xlim(-.2,.2)
 #plt.ylim(0,6)
 plt.xlabel("GHz")

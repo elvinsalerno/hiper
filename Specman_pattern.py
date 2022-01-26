@@ -7,17 +7,31 @@ Created on Sun Nov 21 18:00:14 2021
 
 
 
-
 #Choose 'gaussian' or 'wurst'
-Choose_type=['wurst']
-START=[93.4] #in GHz
-STOP=[94.25]  #in GHz
+'''
+Choose_type=['wurst','wurst']
+START=[93.2,93.2] #in GHz
+STOP=[94.8,93.9]  #in GHz
 
 #from oscillator*12+1.8
-RF=[94.37]
+RF=[94.,94]
+
+#choose 'up' or 'down'
+CHIRP_DIRECTION=['up','up']
+'''
+
+Choose_type=['wurst']
+START=[92.3] #in GHz
+STOP=[92.7]  #in GHz
+
+#from oscillator*12+1.8
+RF=[94.]
 
 #choose 'up' or 'down'
 CHIRP_DIRECTION=['up']
+
+
+N_points=10000
 
 
 #*************************SAVING File****************************************
@@ -41,7 +55,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #x=np.arange(0,np.pi,0.0001)
-x=np.linspace(0,np.pi,100000)
+x=np.linspace(0,np.pi,N_points)
 print(len(x),'points')
 
 
@@ -64,7 +78,7 @@ def func(START,STOP,RF,CHIRP_DIRECTION,Choose_type):
             
     elif Choose_type=='gaussian':
         def y_func(x):
-            sigma=x[-1]/6.2
+            sigma=x[-1]/6.2 #6.2
             mean=x[-1]/2
             scale=1
             y= scale * np.exp(-np.square(x - mean) / (2 * sigma ** 2))

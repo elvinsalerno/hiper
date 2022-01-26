@@ -5,16 +5,20 @@ Created on Sat Aug 21 17:44:33 2021
 @author: evsal
 """
 #write 'field' or 'freq'
-#interactive_plot='freq'
-interactive_plot='field'
+interactive_plot='freq'
+#interactive_plot='field'
 
 
 exp_freq=[94]
+plot_field=3.28
 
 #choose 'yes' or 'no'
 stack_plot='yes'
 
 
+
+slider_start = 3.1
+slider_end = 3.5
 ###############################################################################
 import numpy as np
 import matplotlib
@@ -108,8 +112,9 @@ def plot_fcn(filename_in,lab,numb):
     if savGol=='on':
         data_mag=savgol_filter(data_mag, 11, 2)
     
-    #plt.plot(field,data_Re)
-    #plt.plot(field,data_Im)
+    #plt.plot(field,data_Re,label='Re')
+    #plt.plot(field,data_Im,label='Im')
+    
     if stack_plot=='yes':
         plt.plot(field,data_mag+numb*1.1,label=lab)
     else:
@@ -130,19 +135,20 @@ def plot_fcn(filename_in,lab,numb):
 #plot_fcn(file_directory,'FSE_93p55GHZ_20_350_40_5K_20dB_Data','xxx')
 
 name_list=['0$^\circ$','72$^\circ$','108$^\circ$','144$^\circ$','149$^\circ$' ]
-name_list=['xxx','xxx','xxx','xxx','xxx']
+name_list=['xxx']*10
+name_list=['11.5','12.5','12.5','13.5','15.5','0']
 
 
 for i in range(0,len(filez[0])):
     plot_fcn(filez[0][i],name_list[i],i)
+    print('\n',filez[0][i])
 
 
 
-#plt.legend()
 plt.xlabel('Field (T)')
-#plt.ylabel('echo intensity')
+plt.ylabel('echo intensity')
 plt.title('Field dependence')
-plt.legend()
+#plt.legend()
 #plt.xlim(3,3.75)
 
 ##############################################################################
@@ -168,7 +174,7 @@ if derivative=='on':
 ##############################################################################
 fig = plt.figure(num=3,figsize=(3.25,2.25), dpi=300)
 
-sliders=np.linspace(3.3,3.5,50)
+sliders=np.linspace(slider_start,slider_end,100)
 '''
 freq_vals=[]
 for i in range(0,len(fields_array)):
@@ -200,18 +206,25 @@ if interactive_plot=='field':
         plt.plot(freq_vals[i],data_mag_array[i])
 elif interactive_plot=='freq':
     '''
-plt.plot(freq_vals[0],data_mag_array[0])
+    
+    
+    
+specwavel1=min(sliders, key=lambda x:abs(x-plot_field))
+indexwavel1, = np.where(sliders == specwavel1)
+
+
+plt.plot(freq_vals[indexwavel1[0]],data_mag_array[0])
 
 plt.xlabel('Frequency (GHz)')
 plt.ylabel('echo intensity')
-plt.title(' Freq dependence at %s T'% (np.round(sliders[0],3)))
-#plt.xlim(92,96)
+plt.title(' Freq dependence at %s T'% (np.round(sliders[indexwavel1[0]],3)))
+plt.xlim(93.8,94.3)
 
 #freq_vals=freq_vals[0]
 if interactive_plot=='field':
     fig = go.Figure()
 elif interactive_plot=='freq':
-    fig = go.Figure(layout_title_text="field=%s"% (np.round(sliders[0],3)))
+    fig = go.Figure(layout_title_text="field=%s"% (np.round(sliders[indexwavel1[0]],3)))
 
 
 

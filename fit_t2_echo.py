@@ -17,13 +17,13 @@ np.set_printoptions(threshold=np.inf)
 #file_directory=r"C:\SpecManData\Sam\GdDOTA"
 #filename_in="T1_20K_VT"
 
-file_directory=r"C:\SpecManData\Gd3NC80Cu\11152021"
-filename_in="t1_ELDOR_Gd3@c60_10dB_5K_3.390T_94GHz_1.5GHzsaturation"
+file_directory=r"C:\SpecManData\Gd3NC80Cu\01102021_Gd3shortligsndCu\T2_Cu"
+filename_in="T2_24dB_3.281T"
 skip_n_points=0
-n2=150
+n2= 426
 
 #choose 'us' or 'ns'
-timescale= 'us'
+timescale= 'ns'
 
 
 
@@ -52,6 +52,8 @@ data_Im=raw_data[:,2]
 data_mag=(np.sqrt((np.square(data_Im))+(np.square(data_Re))))
 #print(data_mag)
 plt.plot(time_ns[skip_n_points:n2],data_mag[skip_n_points:n2],color='b',label='data')#,'o',fillstyle='none',markersize=3
+#plt.plot(time_ns[skip_n_points:n2],data_Re[skip_n_points:n2],color='b',label='data')#,'o',fillstyle='none',markersize=3
+#plt.plot(time_ns[skip_n_points:n2],data_Im[skip_n_points:n2],color='b',label='data')#,'o',fillstyle='none',markersize=3
 #plt.plot(time_ns,data_Re)
 #plt.plot(time_ns,data_Im)
 
