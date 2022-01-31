@@ -20,7 +20,7 @@ Choose_type=['wurst']
 start=[93.5]
 
 #in GHz
-stop=[94]
+stop=[94.5]
 
 #Global RF, typically 94
 RF=94
@@ -140,11 +140,11 @@ def FUNC(start,stop,RF,Choose_type):
     elif Choose_type=='square':
         def B_func(t):
             y=t.copy()
-            for i in range(len(t)):
-                if t[i]>pulse_length_ns*1e-9/4 and t[i]<pulse_length_ns*1e-9*3/4:
+            for i in range(0,len(t)):
+                if t[i]>pulse_length_ns*(1e-9)/4 and t[i]<pulse_length_ns*(1e-9)*3/4:
                     y[i] = 1
                 else:
-                    y[i] = 0.0000001
+                    y[i] = 0
             return y          
         def v_func(t):
             return start*1e9+t*0      
@@ -263,15 +263,8 @@ def fourier_func(Col):
     data_im=data_im[cutoff_ind[0]:cutoff_ind[1]]
     data_re=data_re[cutoff_ind[0]:cutoff_ind[1]]
     '''
-    
-    
-    
 
     data = [data_re[i]+ 1j* data_im[i] for i in range(len(data_im)) ]
-    
-
-    
-    
     
     #data=data_re
     #data=np.imag(data_re)
@@ -280,10 +273,18 @@ def fourier_func(Col):
     # Number of sample points
     N = len(times)
     
+    
+    def NormalizeData(data_in):
+        return (data_in ) / (np.max(data_in))
+    
     #x = times
     #y =data-np.mean(data)
     y=data
     yf = fft(y)
+    
+
+    
+    yf = NormalizeData(np.abs(yf))
 
     xf = fftfreq(N, T)#[:N//2]
 
